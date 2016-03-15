@@ -60,12 +60,14 @@ app.get('/illegal', function(req, res) {
   });
 });
 
+
+
 app.get('/scraper', function(req, res) {
   request('https://news.ycombinator.com/', function(error, response, html) {
     var $ = cheerio.load(html);
-    $('.title').each(function(i, element) {
-      var title = $(this).children('a').text();
-      var link = $(this).children('a').attr('href');
+    $('td.title:nth-child(3)>a').each(function(i, element) {
+      var title = $(element).text();
+      var link = $(element).attr('href');
       if (title && link) {
         db.scrapedData.save({
           title: title,
@@ -78,10 +80,22 @@ app.get('/scraper', function(req, res) {
           }
         });
       }
+      var scrapedData = new data({
+        title : title,
+        link: link
+      });
+      // Save to Database
+      insertedArticle.save(function(err, dbArticle) {
+        if (err) {
+          console.log(err);
+        } else {
+          // console.log(dbArticle);
+        }
+      });
     });
   });
-  res.send("Scrape Complete");
 });
+
 
 
 
